@@ -33,8 +33,24 @@ class TopicsAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at'
     )
+
+    list_display = ('course_id',
+        'title',
+        'content',
+        'author',
+        'created_at',
+        'updated_at')
+
 class ExamsAdmin(admin.ModelAdmin):
     fields = (
+        'title',
+        'course_id',
+        'time',
+        'minimun_correct_answers',
+        'created_at',
+        'updated_at'
+    )
+    list_display = (
         'title',
         'course_id',
         'time',
@@ -50,8 +66,20 @@ class Posible_AnswersAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at'
     )
+    list_display = (
+        'question_id',
+        'answer',
+        'type',
+        'created_at',
+        'updated_at'
+    )
 class User_CoursesAdmin(admin.ModelAdmin):
     fields = (
+        'user_id',
+        'course_id',
+        'course_state'
+    )
+    list_display = (
         'user_id',
         'course_id',
         'course_state'
@@ -63,8 +91,12 @@ class User_AnswersAdmin(admin.ModelAdmin):
         'question_id',
         'answer_id'
     )
-
-
+    list_display = (
+        'user_id',
+        'exam_id',
+        'question_id',
+        'answer_id'
+    )
 
 admin.site.register(Questions, QuestionsAdmin)
 admin.site.register(Courses, CoursesAdmin)

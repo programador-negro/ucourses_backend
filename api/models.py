@@ -11,6 +11,13 @@ class Courses(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
+    def __str__(self) -> str:
+        '''
+        Function to return the field like string in the admin site,
+        and don't show a object
+        '''
+        return self.title
+
     class Meta:
         verbose_name_plural = "Courses"
 
