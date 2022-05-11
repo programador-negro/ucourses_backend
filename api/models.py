@@ -9,7 +9,7 @@ class Courses(models.Model):
     duration = models.IntegerField()
     author = models.ForeignKey(User, models.CASCADE)
     created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         '''
@@ -27,7 +27,14 @@ class Topics(models.Model):
     content = models.TextField()
     author = models.ForeignKey(User, models.CASCADE)
     created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        '''
+        Function to return the field like string in the admin site,
+        and don't show a object
+        '''
+        return self.title
 
     class Meta:
         verbose_name_plural = "Topics"
@@ -41,7 +48,14 @@ class Exams(models.Model):
     time = models.TimeField()
     minimun_correct_answers =  models.IntegerField()
     created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self) -> str:
+        '''
+        Function to return the field like string in the admin site,
+        and don't show a object
+        '''
+        return self.title
     
     class Meta:
         verbose_name_plural = "Exams"
@@ -51,21 +65,35 @@ class Questions(models.Model):
     todas las preguntas
     '''
     question = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_created=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        '''
+        Function to return the field like string in the admin site,
+        and don't show a object
+        '''
+        return self.question
 
     class Meta:
         verbose_name_plural = "Questions"
 
-class Posible_Answers(models.Model):
+class Exam_Answers(models.Model):
     '''
     todas las opciones de respuesta
     '''
     question_id = models.ForeignKey('Questions', models.DO_NOTHING)
     answer = models.CharField(max_length=200)
-    type = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    is_correct = models.BooleanField(verbose_name="es correcta")
+    created_at = models.DateTimeField(auto_created=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        '''
+        Function to return the field like string in the admin site,
+        and don't show a object
+        '''
+        return self.answer
 
     class Meta:
         verbose_name_plural = "Posible Answers"
@@ -85,7 +113,7 @@ class User_Answers(models.Model):
     user_id = models.ForeignKey(User, models.DO_NOTHING)
     exam_id = models.ForeignKey(Exams, models.DO_NOTHING)
     question_id = models.ForeignKey(Questions, models.DO_NOTHING)
-    answer_id = models.ForeignKey(Posible_Answers, models.DO_NOTHING)
+    answer_id = models.ForeignKey(Exam_Answers, models.DO_NOTHING)
 
     class Meta:
         verbose_name_plural = "User Answers"

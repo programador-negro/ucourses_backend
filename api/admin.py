@@ -1,9 +1,14 @@
 from dataclasses import field
 from django.contrib import admin
-from .models import Questions, Courses, Topics, Exams, Posible_Answers, User_Courses, User_Answers 
+from .models import Questions, Courses, Topics, Exams, Exam_Answers, User_Courses, User_Answers 
 
 class QuestionsAdmin(admin.ModelAdmin):
     fields = (
+        'question',
+        'created_at',
+    )
+
+    list_display = (
         'question',
         'created_at',
         'updated_at'
@@ -15,7 +20,6 @@ class CoursesAdmin(admin.ModelAdmin):
         'duration',
         'author',
         'created_at',
-        'updated_at'
     )
     list_display = (
         'title',
@@ -24,6 +28,7 @@ class CoursesAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at'
     )
+
 class TopicsAdmin(admin.ModelAdmin):
     fields = (
         'course_id',
@@ -31,7 +36,6 @@ class TopicsAdmin(admin.ModelAdmin):
         'content',
         'author',
         'created_at',
-        'updated_at'
     )
 
     list_display = ('course_id',
@@ -48,7 +52,6 @@ class ExamsAdmin(admin.ModelAdmin):
         'time',
         'minimun_correct_answers',
         'created_at',
-        'updated_at'
     )
     list_display = (
         'title',
@@ -58,21 +61,23 @@ class ExamsAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at'
     )
-class Posible_AnswersAdmin(admin.ModelAdmin):
+
+class Exam_AnswersAdmin(admin.ModelAdmin):
     fields = (
         'question_id',
         'answer',
-        'type',
+        'is_correct',
         'created_at',
-        'updated_at'
+        
     )
     list_display = (
         'question_id',
         'answer',
-        'type',
+        'is_correct',
         'created_at',
         'updated_at'
     )
+
 class User_CoursesAdmin(admin.ModelAdmin):
     fields = (
         'user_id',
@@ -84,6 +89,7 @@ class User_CoursesAdmin(admin.ModelAdmin):
         'course_id',
         'course_state'
     )
+
 class User_AnswersAdmin(admin.ModelAdmin):
     fields = (
         'user_id',
@@ -102,6 +108,6 @@ admin.site.register(Questions, QuestionsAdmin)
 admin.site.register(Courses, CoursesAdmin)
 admin.site.register(Topics, TopicsAdmin)
 admin.site.register(Exams, ExamsAdmin)
-admin.site.register(Posible_Answers, Posible_AnswersAdmin)
+admin.site.register(Exam_Answers, Exam_AnswersAdmin)
 admin.site.register(User_Courses, User_CoursesAdmin)
 admin.site.register(User_Answers, User_AnswersAdmin)
