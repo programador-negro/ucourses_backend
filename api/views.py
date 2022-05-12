@@ -91,8 +91,8 @@ class topics(APIView):
 class exams(APIView):
     def post(self, request):
         try:
-            
-            return Response({'type': 'ok', 'detail': ''})
+            data = Exams.objects.all()
+            return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
