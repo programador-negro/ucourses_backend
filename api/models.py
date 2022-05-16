@@ -8,6 +8,7 @@ class Courses(models.Model):
     title = models.CharField(max_length=200)
     duration = models.IntegerField()
     author = models.ForeignKey(User, models.CASCADE)
+    image_url = models.CharField(max_length=200, null=True, blank=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -41,7 +42,7 @@ class Topics(models.Model):
 
 class Exams(models.Model):
     '''
-    todos los examenes en general de la plataforma
+    todos los exámenes en general de la plataforma
     '''
     title = models.CharField(max_length=200)
     course_id = models.ForeignKey('Courses', models.DO_NOTHING)
@@ -105,6 +106,7 @@ class User_Courses(models.Model):
     user_id = models.ForeignKey(User, models.CASCADE)
     course_id = models.ForeignKey(Courses, models.DO_NOTHING)
     course_state =  models.BooleanField()
+    progress_percent = models.FloatField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "User Courses"
