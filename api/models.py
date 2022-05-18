@@ -9,6 +9,7 @@ class Courses(models.Model):
     duration = models.IntegerField()
     author = models.ForeignKey(User, models.CASCADE)
     image_url = models.CharField(max_length=200, null=True, blank=True)
+    path = models.CharField(max_length=200, null=True, blank=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -11,7 +11,7 @@ class QuestionsAdmin(admin.ModelAdmin):
     list_display = (
         'question',
         'created_at',
-        'updated_at'
+        'updated_at',
     )
 
 class CoursesAdmin(admin.ModelAdmin):
@@ -19,6 +19,7 @@ class CoursesAdmin(admin.ModelAdmin):
         'title',
         'duration',
         'author',
+        'image_url',
         'created_at',
     )
     list_display = (
@@ -87,7 +88,8 @@ class User_CoursesAdmin(admin.ModelAdmin):
     list_display = (
         'user_id',
         'course_id',
-        'course_state'
+        'course_state',
+        'progress_percent',
     )
 
 class User_AnswersAdmin(admin.ModelAdmin):

@@ -1,15 +1,15 @@
 from datetime import datetime as dt
 from .utilities import utils
-from email import utils
 import requests
 import json
 
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
-# from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 # from django.core import serializers
 # from django.db import connection
@@ -17,7 +17,42 @@ from django.contrib.auth.models import User
 
 from .models import Courses, Questions, Exam_Answers, Topics, Exams, User_Courses, User_Answers
 
+
+class UserAuthentication(APIView):
+    def post(self, request):
+        '''
+        TARGET:
+            Auntenticar al usuario administrador y generar un token
+
+        PARAMS: request:
+            User
+            Password
+        '''
+        try:
+
+            username, password = request.data.get('username'), request.data.get('password')
+
+            user = authenticate(username=username, password=password)
+
+            if not user:
+
+                return Response({'type': 'error', 'detail': 'invalid user or password'})
+
+            token, created = Token.objects.get_or_create(
+                user=user)  # Genera token para el usuario logueado
+            return Response({
+                'type': 'ok', 
+                'detail': {
+                    'token': str(token.key), 'id': user.id}})
+        
+        except Exception as ex:
+            return Response({
+                'type': 'error', 
+                'detail': ex})
+
 class courses(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             title = request.data.get('title')
@@ -84,7 +119,10 @@ class courses(APIView):
                 'detail': utils.json_serializer(data)})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
 class questions(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             question = request.data.get('question')
@@ -132,6 +170,8 @@ class questions(APIView):
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 class exam_answers(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             question_id = request.data.get('question_id')
@@ -196,6 +236,8 @@ class exam_answers(APIView):
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 class user(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             ...
@@ -203,15 +245,25 @@ class user(APIView):
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
         try:
-            data = User.objects.all()
-            if len(data)>=1:
-                return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+            pk = self.request.query_params.get('pk')
+            if pk is None:
+                data = User.objects.all()
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist users in the data base'})
             else:
-                return Response({'type': 'ok', 'detail': 'No exist users in the data base'})
-            return Response({'type': 'ok', 'detail': ''})
+                print('PK: ', str(pk))
+                data = User.objects.filter(pk = pk)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist users in the data base with that id'})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 class topics(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             course_id = request.data.get('course_id')
@@ -262,6 +314,8 @@ class topics(APIView):
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 class exams(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             data = Exams.objects.all()
