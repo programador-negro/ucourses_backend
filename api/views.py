@@ -113,10 +113,18 @@ class courses(APIView):
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
         try:
-            data = Courses.objects.all()
-            return Response({
-                'type': 'ok', 
-                'detail': utils.json_serializer(data)})
+            pk = self.request.query_params.get('pk')
+            if pk is None:
+                data = Courses.objects.all()
+                return Response({
+                    'type': 'ok', 
+                    'detail': utils.json_serializer(data)})
+            else:
+                data = Courses.objects.filter(pk = pk)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist course in the data base with that id'})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
@@ -309,8 +317,34 @@ class topics(APIView):
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
         try:
-            data = Topics.objects.all()
-            return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+            print('QUERY', self.request.query_params)
+            print('PK', self.request.query_params.get('pk'))
+            print('COURSE ID', self.request.query_params.get('course_id'))
+
+            pk = self.request.query_params.get('pk')
+            course_id = self.request.query_params.get('course_id')
+
+            if pk is not None:
+                '''
+                obtener todos lor temas por el id (pk: primary key)
+                '''
+                data = Topics.objects.filter(pk = pk)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
+            
+            elif course_id is not None:
+                data = Topics.objects.filter(course_id = course_id)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
+
+            else:
+                data = Topics.objects.all()
+                return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 class exams(APIView):
