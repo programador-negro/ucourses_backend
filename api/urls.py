@@ -6,7 +6,6 @@ urlpatterns = [  # pylint: disable=C0103
     # ADD OR SEARCH USER // REGISTRAR Y CONSULTAR USUARIOS
     url('courses/', courses.as_view()),
     url('questions/', questions.as_view()),
-    url('questions/<int:id>/', questions.as_view()),
     url('authentication/', UserAuthentication.as_view()),
     url('user/', user.as_view()),
     url('exams/', exams.as_view()),

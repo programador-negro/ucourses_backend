@@ -1,3 +1,4 @@
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -24,7 +25,7 @@ class Courses(models.Model):
         verbose_name_plural = "Courses"
 
 class Topics(models.Model):
-    course_id = models.ForeignKey(Courses, models.DO_NOTHING)
+    course = models.ForeignKey(Courses, models.DO_NOTHING)
     title = models.CharField(max_length=150)
     content = models.TextField()
     author = models.ForeignKey(User, models.CASCADE)
@@ -46,7 +47,7 @@ class Exams(models.Model):
     todos los exámenes en general de la plataforma
     '''
     title = models.CharField(max_length=200)
-    course_id = models.ForeignKey('Courses', models.DO_NOTHING)
+    course = models.ForeignKey('Courses', on_delete=models.CASCADE )
     time = models.TimeField()
     minimun_correct_answers =  models.IntegerField()
     created_at = models.DateTimeField()
@@ -84,7 +85,7 @@ class Exam_Answers(models.Model):
     '''
     todas las opciones de respuesta
     '''
-    question_id = models.ForeignKey('Questions', models.DO_NOTHING)
+    question = models.ForeignKey('Questions', models.DO_NOTHING)
     answer = models.CharField(max_length=200)
     is_correct = models.BooleanField(verbose_name="es correcta")
     created_at = models.DateTimeField(auto_created=True)

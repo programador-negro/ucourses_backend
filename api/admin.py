@@ -26,6 +26,7 @@ class CoursesAdmin(admin.ModelAdmin):
         'title',
         'duration',
         'author',
+        'image_url',
         'created_at',
         'updated_at'
     )
@@ -49,14 +50,14 @@ class TopicsAdmin(admin.ModelAdmin):
 class ExamsAdmin(admin.ModelAdmin):
     fields = (
         'title',
-        'course_id',
+        'course',
         'time',
         'minimun_correct_answers',
         'created_at',
     )
     list_display = (
         'title',
-        'course_id',
+        'course',
         'time',
         'minimun_correct_answers',
         'created_at',
@@ -65,14 +66,14 @@ class ExamsAdmin(admin.ModelAdmin):
 
 class Exam_AnswersAdmin(admin.ModelAdmin):
     fields = (
-        'question_id',
+        'question',
         'answer',
         'is_correct',
         'created_at',
         
     )
     list_display = (
-        'question_id',
+        'question',
         'answer',
         'is_correct',
         'created_at',

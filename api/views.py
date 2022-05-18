@@ -334,7 +334,7 @@ class topics(APIView):
                 else:
                     return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
             
-            elif course_id is not None:
+            elif course_id is not None:   
                 data = Topics.objects.filter(course_id = course_id)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
@@ -352,13 +352,33 @@ class exams(APIView):
 
     def post(self, request):
         try:
-            data = Exams.objects.all()
-            return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+            ...
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
         try:
-            data = Exams.objects.all()            
-            return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+            course_id = self.request.query_params.get('course_id')
+            pk = self.request.query_params.get('course_id')
+            
+            if course_id is not None:
+                data = Exams.objects.raw(f'''
+                SELECT * FROM api_exams AS e 
+                INNER JOIN api_questions as q ON e.course_id  = q.id
+                INNER JOIN api_exam_answers as ea ON q.id = ea.question_id
+                WHERE e.course_id = {str(course_id)};
+                ''')
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'ok', 'detail': 'No exist exams in the data base with that id'})
+
+            elif pk is not None:
+                data = Exams.objects.filter(pk = pk)
+                return Response({
+                    'type': 'ok', 
+                    'detail': utils.json_serializer(data)})
+            else:
+                data = Exams.objects.all()
+                return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
