@@ -5,11 +5,13 @@ from .models import Questions, Courses, Topics, Exams, Exam_Answers, User_Course
 class QuestionsAdmin(admin.ModelAdmin):
     fields = (
         'question',
+        'exam',
         'created_at',
     )
 
     list_display = (
         'question',
+        'exam',
         'created_at',
         'updated_at',
     )
@@ -33,7 +35,7 @@ class CoursesAdmin(admin.ModelAdmin):
 
 class TopicsAdmin(admin.ModelAdmin):
     fields = (
-        'course_id',
+        'course',
         'title',
         'content',
         'author',

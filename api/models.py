@@ -48,7 +48,7 @@ class Exams(models.Model):
     '''
     title = models.CharField(max_length=200)
     course = models.ForeignKey('Courses', on_delete=models.CASCADE )
-    time = models.TimeField()
+    time = models.IntegerField()
     minimun_correct_answers =  models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
@@ -67,6 +67,7 @@ class Questions(models.Model):
     '''
     todas las preguntas
     '''
+    exam = models.ForeignKey(Exams, models.DO_NOTHING, default=1)
     question = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_created=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -105,8 +106,8 @@ class User_Courses(models.Model):
     '''
     many to many relationship
     '''
-    user_id = models.ForeignKey(User, models.CASCADE)
-    course_id = models.ForeignKey(Courses, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.CASCADE)
+    course = models.ForeignKey(Courses, models.DO_NOTHING)
     course_state =  models.BooleanField()
     progress_percent = models.FloatField(null=True, blank=True)
 
@@ -114,10 +115,10 @@ class User_Courses(models.Model):
         verbose_name_plural = "User Courses"
 
 class User_Answers(models.Model):
-    user_id = models.ForeignKey(User, models.DO_NOTHING)
-    exam_id = models.ForeignKey(Exams, models.DO_NOTHING)
-    question_id = models.ForeignKey(Questions, models.DO_NOTHING)
-    answer_id = models.ForeignKey(Exam_Answers, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.DO_NOTHING)
+    exam = models.ForeignKey(Exams, models.DO_NOTHING)
+    question = models.ForeignKey(Questions, models.DO_NOTHING)
+    answer = models.ForeignKey(Exam_Answers, models.DO_NOTHING)
 
     class Meta:
         verbose_name_plural = "User Answers"

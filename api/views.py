@@ -114,17 +114,17 @@ class courses(APIView):
     def get(self, request):
         try:
             pk = self.request.query_params.get('pk')
-            if pk is None:
-                data = Courses.objects.all()
-                return Response({
-                    'type': 'ok', 
-                    'detail': utils.json_serializer(data)})
-            else:
+            if pk is not None:
                 data = Courses.objects.filter(pk = pk)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
                     return Response({'type': 'ok', 'detail': 'No exist course in the data base with that id'})
+            else:
+                data = Courses.objects.all()
+                return Response({
+                    'type': 'ok', 
+                    'detail': utils.json_serializer(data)})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
@@ -171,12 +171,22 @@ class questions(APIView):
 
     def get(self, request):
         try:
-            data = Questions.objects.all()
-            return Response({
-                'type': 'ok', 
-                'detail': utils.json_serializer(data)})
+            print('QUERY PARAMS', self.request.query_params)
+            exam_id = self.request.query_params.get('exam_id')
+            
+            if exam_id is not None:
+                data = Questions.objects.filter(exam_id = exam_id)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'error', 'detail': 'No exist questions in the data base with that id'}, status = status.HTTP_200_OK)
+            else:
+                data = Questions.objects.all()
+                return Response({
+                    'type': 'ok', 
+                    'detail': utils.json_serializer(data)})
         except Exception as ex:
-            return Response({'type': 'error', 'detail': ex})
+            return Response({'type': 'error', 'detail': ex}, status = status.HTTP_200_OK)
 class exam_answers(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -254,21 +264,20 @@ class user(APIView):
     def get(self, request):
         try:
             pk = self.request.query_params.get('pk')
-            if pk is None:
-                data = User.objects.all()
-                if len(data)>=1:
-                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
-                else:
-                    return Response({'type': 'ok', 'detail': 'No exist users in the data base'})
-            else:
-                print('PK: ', str(pk))
+            if pk is not None:
                 data = User.objects.filter(pk = pk)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
-                    return Response({'type': 'ok', 'detail': 'No exist users in the data base with that id'})
+                    return Response({'type': 'error', 'detail': 'No exist users in the data base with that id'})
+            else:
+                data = User.objects.all()
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'type': 'error', 'detail': 'No exist users in the data base'})
         except Exception as ex:
-            return Response({'type': 'error', 'detail': ex})
+            return Response({'type': 'error', 'detail': ex}, status=status.HTTP_200_OK)
 class topics(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -301,7 +310,7 @@ class topics(APIView):
                     'detail': 'the course id was not fount'})
             
             new = Topics(
-                course_id = seeked_course,
+                course = seeked_course,
                 title = title,
                 content = content,
                 author = author,
@@ -335,7 +344,7 @@ class topics(APIView):
                     return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
             
             elif course_id is not None:   
-                data = Topics.objects.filter(course_id = course_id)
+                data = Topics.objects.filter(course = course_id)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
@@ -357,15 +366,16 @@ class exams(APIView):
             return Response({'type': 'error', 'detail': ex})
     def get(self, request):
         try:
-            course_id = self.request.query_params.get('course_id')
-            pk = self.request.query_params.get('course_id')
+            print('QUERY PARAMS', self.request.query_params)
+            exam_id = self.request.query_params.get('course_id') if self.request.query_params.get('exam_id') else None
+            pk = self.request.query_params.get('pk')
             
-            if course_id is not None:
+            if exam_id is not None:
                 data = Exams.objects.raw(f'''
                 SELECT * FROM api_exams AS e 
-                INNER JOIN api_questions as q ON e.course_id  = q.id
+                INNER JOIN api_questions as q ON e.id  = q.exam_id
                 INNER JOIN api_exam_answers as ea ON q.id = ea.question_id
-                WHERE e.course_id = {str(course_id)};
+                WHERE q.exam_id = {str(exam_id)};
                 ''')
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
