@@ -1,6 +1,6 @@
 from dataclasses import field
 from django.contrib import admin
-from .models import Questions, Courses, Topics, Exams, Exam_Answers, User_Courses, User_Answers 
+from .models import Questions, Courses, Topics, Exams, Exam_Answers, User_Courses, User_Answers, All_User_Answers
 
 class QuestionsAdmin(admin.ModelAdmin):
     fields = (
@@ -108,6 +108,21 @@ class User_AnswersAdmin(admin.ModelAdmin):
         'question_id',
         'answer_id'
     )
+class All_User_AnswersAdmin(admin.ModelAdmin):
+    fields = (
+        'user',
+        'course',
+        'exam_name',
+        'question',
+        'is_correct'
+    )
+    list_display = (
+        'user',
+        'course',
+        'exam_name',
+        'question',
+        'is_correct'
+    )
 
 admin.site.register(Questions, QuestionsAdmin)
 admin.site.register(Courses, CoursesAdmin)
@@ -116,3 +131,4 @@ admin.site.register(Exams, ExamsAdmin)
 admin.site.register(Exam_Answers, Exam_AnswersAdmin)
 admin.site.register(User_Courses, User_CoursesAdmin)
 admin.site.register(User_Answers, User_AnswersAdmin)
+admin.site.register(All_User_Answers, All_User_AnswersAdmin)
