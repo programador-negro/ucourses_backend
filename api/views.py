@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 # from django.db import connection
 # from django.conf import settings
 
-from .models import Courses, Questions, Exam_Answers, Topics, Exams, User_Courses, User_Answers
+from .models import Courses, Questions, Exam_Answers, Topics, Exams, User_Courses, User_Answers, All_User_Answers
 
 
 class UserAuthentication(APIView):
@@ -177,7 +177,15 @@ class questions(APIView):
             if exam_id is not None:
                 data = Questions.objects.filter(exam_id = exam_id)
                 if len(data)>=1:
+
+                    # myquestions = {'questions': []}
+                    
+                    # for quest in data:
+                    #     options = Exam_Answers.objects.filter(question_id = quest.id)
+                    #     myquestions['questions'].append({'quesion': quest.question, 'options': [ option for option in options]})
+
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+                    # return Response({'type': 'ok', 'detail': myquestions })
                 else:
                     return Response({'type': 'error', 'detail': 'No exist questions in the data base with that id'}, status = status.HTTP_200_OK)
             else:
@@ -390,5 +398,44 @@ class exams(APIView):
             else:
                 data = Exams.objects.all()
                 return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+        except Exception as ex:
+            return Response({'type': 'error', 'detail': ex})
+
+class user_answers(APIView):
+    def post(self, request):
+        try:
+            result = request.data.get('result')
+            print('RESULT: ', result['question'])
+            # AGREGAR VALIDACIONES
+            
+            # RESPONSE EXAMPLE
+            # {'user': '1', 'course': 1, 'question': '¿que siginifica int?', 'is_correct': 1}
+
+            data = All_User_Answers(
+                user = result['user'],
+                course = result['course'],
+                exam_name = result['exam_name'],
+                question = result['question'],
+                is_correct = result['is_correct']).save()
+
+            return Response({'type': 'ok', 'detail': {
+                'message': 'las preguntas del usuario fueron guardadas exitosamente',
+                'content': utils.json_serializer(data)
+            }})
+            # return Response({'type': 'ok', 'detail': 'success'})
+        except Exception as ex:
+            return Response({'type': 'error', 'detail': ex})
+    def get(self, request):
+        try:
+            course = self.request.query_params.get('course')
+            if course is not None:
+                data = All_User_Answers.objects.filter(course = course)
+                if len(data)>=1:
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(data[:3])})
+                else:
+                    return Response({'type': 'error', 'detail': 'the user answers was not found with that id' })
+            else:
+                data = All_User_Answers.objects.all()
+                return Response({'type': 'ok', 'detail': utils.json_serializer(data[:3])})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})

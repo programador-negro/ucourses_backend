@@ -123,4 +123,10 @@ class User_Answers(models.Model):
     class Meta:
         verbose_name_plural = "User Answers"
 
+class All_User_Answers(models.Model):
+    user = models.IntegerField(null=True)
+    course = models.IntegerField(null=True)
+    exam_name = models.CharField(max_length=200)
+    question = models.CharField(max_length=200)
+    is_correct = models.BooleanField()
 
