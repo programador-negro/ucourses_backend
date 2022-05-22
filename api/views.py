@@ -410,6 +410,10 @@ class user_answers(APIView):
             
             # RESPONSE EXAMPLE
             # {'user': '1', 'course': 1, 'question': '¿que siginifica int?', 'is_correct': 1}
+            try:
+                All_User_Answers.objects.raw(f"DELETE * FROM api_all_user_answers WHERE user = {result['user']} AND course = {result['course']}")
+            except Exception as ex:
+                print('EXEPT', ex)
 
             data = All_User_Answers(
                 user = result['user'],
@@ -428,14 +432,16 @@ class user_answers(APIView):
     def get(self, request):
         try:
             course = self.request.query_params.get('course')
+            user = self.request.query_params.get('user')
             if course is not None:
-                data = All_User_Answers.objects.filter(course = course)
+                
+                data = All_User_Answers.objects.filter(course = course, user = user)
                 if len(data)>=1:
-                    return Response({'type': 'ok', 'detail': utils.json_serializer(data[:3])})
+                    return Response({'type': 'ok', 'detail': utils.json_serializer(reversed(data[:3]))})
                 else:
                     return Response({'type': 'error', 'detail': 'the user answers was not found with that id' })
             else:
                 data = All_User_Answers.objects.all()
-                return Response({'type': 'ok', 'detail': utils.json_serializer(data[:3])})
+                return Response({'type': 'ok', 'detail': utils.json_serializer(data[-3:])})
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
