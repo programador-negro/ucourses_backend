@@ -1,7 +1,7 @@
+from .models import Courses, Questions, Exam_Answers, Topics, Exams, User_Courses, User_Answers, All_User_Answers
+
 from datetime import datetime as dt
 from .utilities import utils
-import requests
-import json
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
@@ -11,46 +11,39 @@ from rest_framework import status
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-# from django.core import serializers
-# from django.db import connection
-# from django.conf import settings
-
-from .models import Courses, Questions, Exam_Answers, Topics, Exams, User_Courses, User_Answers, All_User_Answers
 
 
 class UserAuthentication(APIView):
     def post(self, request):
         '''
-        TARGET:
+        target:
             Auntenticar al usuario administrador y generar un token
 
-        PARAMS: request:
+        params: request:
             User
             Password
         '''
-        try:
 
+        try:
             username, password = request.data.get('username'), request.data.get('password')
 
             user = authenticate(username=username, password=password)
 
             if not user:
+                return Response({'type': 'error', 'detail': 'usuario o contraseña incorrecto'})
 
-                return Response({'type': 'error', 'detail': 'invalid user or password'})
-
-            token, created = Token.objects.get_or_create(
-                user=user)  # Genera token para el usuario logueado
+            token, created = Token.objects.get_or_create(user=user)  # Genera token para el usuario logueado
+            
             return Response({
                 'type': 'ok', 
                 'detail': {
                     'token': str(token.key), 'id': user.id}})
         
         except Exception as ex:
-            return Response({
-                'type': 'error', 
-                'detail': ex})
+            return Response({'type': 'error', 'detail': ex})
 
 class courses(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -64,23 +57,23 @@ class courses(APIView):
             if title is None: 
                 return Response({
                     'type':'error', 
-                    'detail': 'title was not sent'})
+                    'detail': 'title, no fue enviado'})
             if duration is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'duration was not sent'})
+                    'detail': 'duration, no fue enviado'})
             if author is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'author was not sent'})
+                    'detail': 'author, no fue enviado'})
             if created_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'created_at was not sent'})
+                    'detail': 'created_at, no fue enviado'})
             if updated_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'updated_at was not sent'})
+                    'detail': 'updated_at, no fue enviado'})
             
             search = Courses.objects.filter(
                 title=title,
@@ -91,44 +84,54 @@ class courses(APIView):
                 return Response({
                     'type': 'error', 
                     'detail': {
-                        'message': 'this course exist', 
+                        'message': 'este curso existe', 
                         'content': utils.json_serializer(search)}})
+
             user = User.objects.get(pk=author)
+
             if not user or user is None or len(user) == 0:
                 return Response({
                     'type': 'error', 
-                    'detail': 'user or author was not fount'})
+                    'detail': 'user o author, no fue encontrado'})
+
             new = Courses(
                 title = title, 
                 duration = duration, 
                 author = user, 
                 created_at = created_at, 
                 updated_at = updated_at).save()
+
             return Response({
                 'type': 'ok', 
                 'detail': {
-                    'message': 'New courses created successfully',
+                    'message': 'Nuevo curso creado',
                     'content': utils.json_serializer(new)}})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
     def get(self, request):
         try:
+
             pk = self.request.query_params.get('pk')
+
             if pk is not None:
                 data = Courses.objects.filter(pk = pk)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
-                    return Response({'type': 'ok', 'detail': 'No exist course in the data base with that id'})
+                    return Response({'type': 'ok', 'detail': 'No existe un curso en la base de datos con ese Id'})
             else:
                 data = Courses.objects.all()
                 return Response({
                     'type': 'ok', 
                     'detail': utils.json_serializer(data)})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
 class questions(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -140,15 +143,15 @@ class questions(APIView):
             if question is None: 
                 return Response({
                     'type':'error', 
-                    'detail': 'question was not sent'})
+                    'detail': 'question, no fue enviado'})
             if created_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'created_at was not sent'})
+                    'detail': 'created_at, no fue enviado'})
             if updated_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'updated_at was not sent'})
+                    'detail': 'updated_at, no fue enviado'})
             
             new = Questions(
                 question = question, 
@@ -160,18 +163,12 @@ class questions(APIView):
                 'detail': {
                     'message': 'New question has been created', 
                     'content': utils.json_serializer(new)} })
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
-    def get_object(self, pk):
-        try:
-            return Questions.objects.get(pk=pk)
-        except Questions.DoesNotExist:
-            raise "doesn't exist"
-
     def get(self, request):
         try:
-            print('QUERY PARAMS', self.request.query_params)
             exam_id = self.request.query_params.get('exam_id')
             
             if exam_id is not None:
@@ -187,15 +184,18 @@ class questions(APIView):
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                     # return Response({'type': 'ok', 'detail': myquestions })
                 else:
-                    return Response({'type': 'error', 'detail': 'No exist questions in the data base with that id'}, status = status.HTTP_200_OK)
+                    return Response({'type': 'error', 'detail': 'No existe una pregunta en la base de datos con ese Id'}, status = status.HTTP_200_OK)
             else:
                 data = Questions.objects.all()
                 return Response({
                     'type': 'ok', 
                     'detail': utils.json_serializer(data)})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex}, status = status.HTTP_200_OK)
+
 class exam_answers(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -205,26 +205,27 @@ class exam_answers(APIView):
             is_correct = request.data.get('is_correct')
             created_at = request.data.get('created_at')
             updated_at = request.data.get('updated_at')
+
             if question_id is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'question_id was not sent'})
+                    'detail': 'question_id, no fue enviado'})
             if answer is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'answer was not sent' })
+                    'detail': 'answer, no fue enviado' })
             if is_correct is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'is_correct was not sent'})
+                    'detail': 'is_correct, no fue enviado'})
             if created_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'created_at was not sent'})
+                    'detail': 'created_at, no fue enviado'})
             if updated_at is None: 
                 return Response({
                     'type': 'error', 
-                    'detail': 'updated_at was not sent'})
+                    'detail': 'updated_at, no fue enviado'})
             
             exist_exam_answers = Exam_Answers.objects.get(
                 question_id = question_id, 
@@ -234,7 +235,7 @@ class exam_answers(APIView):
                 return Response({
                     'type': 'error', 
                     'detail':{
-                        'message':'this answer option exist for the question that you need', 
+                        'message':'esta opción de respuesta existe para la pregunta que necesitas', 
                         'content': utils.json_serializer(exist_exam_answers)}})
             
             question_seeked = Questions.objects.filter(pk=question_id)
@@ -245,13 +246,16 @@ class exam_answers(APIView):
                 is_correct = True if is_correct == 'true' else False,
                 created_at = created_at,
                 updated_at = updated_at).save()
+
             return Response({
                 'type': 'ok', 
                 'detail': {
-                    'message': 'New exam answer created successfully',
+                    'message': 'Nueva opción de respuesta de examen creada',
                     'content': utils.json_serializer(new)}})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
     def get(self, request):
         try:
             data = Exam_Answers.objects.all()
@@ -259,9 +263,12 @@ class exam_answers(APIView):
                 'type': 'ok', 
                 'detail': utils.json_serializer(data)
                 })
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
 class user(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -269,6 +276,7 @@ class user(APIView):
             ...
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
     def get(self, request):
         try:
             pk = self.request.query_params.get('pk')
@@ -284,9 +292,12 @@ class user(APIView):
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
                     return Response({'type': 'error', 'detail': 'No exist users in the data base'})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex}, status=status.HTTP_200_OK)
+
 class topics(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -299,17 +310,17 @@ class topics(APIView):
             updated_at = request.data.get('updated_at')
             
             if course_id is None: 
-                return Response('course_id was not sent')
+                return Response('course_id, no fue enviado')
             if title is None: 
-                return Response('title was not sent')
+                return Response('title, no fue enviado')
             if content is None: 
-                return Response('content was not sent')
+                return Response('content, no fue enviado')
             if author is None: 
-                return Response('author was not sent')
+                return Response('author, no fue enviado')
             if created_at is None: 
-                return Response('created_at was not sent')
+                return Response('created_at, no fue enviado')
             if updated_at is None: 
-                return Response('updated_at was not sent')
+                return Response('updated_at, no fue enviado')
 
             seeked_course = Courses.objects.get(pk = course_id)
             if len(seeked_course)<=0 or seeked_course is None:
@@ -328,10 +339,12 @@ class topics(APIView):
             return Response({
                 'type': 'ok', 
                 'detail': {
-                    'message': 'New Topic created successfully',
+                    'message': 'Nuevo tema creado',
                     'content': utils.json_serializer(new)}})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
     def get(self, request):
         try:
             print('QUERY', self.request.query_params)
@@ -349,14 +362,14 @@ class topics(APIView):
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
-                    return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
+                    return Response({'type': 'ok', 'detail': 'No existe un tema en la base de datos con ese Id'})
             
             elif course_id is not None:   
                 data = Topics.objects.filter(course = course_id)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
-                    return Response({'type': 'ok', 'detail': 'No exist topic in the data base with that id'})
+                    return Response({'type': 'ok', 'detail': 'No existe un tema en la base de datos con ese Id de curso'})
 
             else:
                 data = Topics.objects.all()
@@ -364,7 +377,9 @@ class topics(APIView):
 
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
 class exams(APIView):
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -372,6 +387,7 @@ class exams(APIView):
             ...
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+    
     def get(self, request):
         try:
             print('QUERY PARAMS', self.request.query_params)
@@ -385,6 +401,7 @@ class exams(APIView):
                 INNER JOIN api_exam_answers as ea ON q.id = ea.question_id
                 WHERE q.exam_id = {str(exam_id)};
                 ''')
+    
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
                 else:
@@ -398,16 +415,19 @@ class exams(APIView):
             else:
                 data = Exams.objects.all()
                 return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
+    
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
 class user_answers(APIView):
+
     def post(self, request):
         try:
             result = request.data.get('result')
             print('RESULT: ', result['question'])
             # AGREGAR VALIDACIONES
-            
+            # ...
+
             # RESPONSE EXAMPLE
             # {'user': '1', 'course': 1, 'question': '¿que siginifica int?', 'is_correct': 1}
             try:
@@ -426,22 +446,32 @@ class user_answers(APIView):
                 'message': 'las preguntas del usuario fueron guardadas exitosamente',
                 'content': utils.json_serializer(data)
             }})
-            # return Response({'type': 'ok', 'detail': 'success'})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
     def get(self, request):
+        '''
+        target:
+            obtener las respuestas del usuario segun  el id de usuario y id de curso
+        params: query params:
+            course
+            user
+        '''
+
         try:
             course = self.request.query_params.get('course')
             user = self.request.query_params.get('user')
+
             if course is not None:
-                
                 data = All_User_Answers.objects.filter(course = course, user = user)
                 if len(data)>=1:
                     return Response({'type': 'ok', 'detail': utils.json_serializer(reversed(data[:3]))})
                 else:
-                    return Response({'type': 'error', 'detail': 'the user answers was not found with that id' })
+                    return Response({'type': 'error', 'detail': 'las respuestas de usuario no se encontraron con ese Id' })
             else:
                 data = All_User_Answers.objects.all()
                 return Response({'type': 'ok', 'detail': utils.json_serializer(data[-3:])})
+
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
