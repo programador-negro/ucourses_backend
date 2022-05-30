@@ -415,7 +415,7 @@ class exams(APIView):
             else:
                 data = Exams.objects.all()
                 return Response({'type': 'ok', 'detail': utils.json_serializer(data)})
-    
+      
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
 
