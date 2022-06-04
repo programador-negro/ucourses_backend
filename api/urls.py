@@ -1,4 +1,4 @@
-from .views import courses, questions, UserAuthentication, user, exams, topics, user_answers
+from .views import practice, courses, questions, UserAuthentication, user, exams, topics, user_answers
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -11,5 +11,6 @@ urlpatterns = [  # pylint: disable=C0103
     url('exams/', exams.as_view()),
     url('topics/', topics.as_view()),
     url('user-answers/', user_answers.as_view()),
+    url('practice/', practice.as_view()),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)

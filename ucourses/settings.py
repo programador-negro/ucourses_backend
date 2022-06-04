@@ -89,9 +89,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_ucourses',
         'USER': 'root',
-        # 'PASSWORD': 'root',
-        'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-        'HOST': 'localhost',
+        'PASSWORD': 'root',
+        # 'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+        # 'HOST': 'db',
         'PORT': '3306',
     }
 }

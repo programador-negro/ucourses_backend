@@ -475,3 +475,102 @@ class user_answers(APIView):
 
         except Exception as ex:
             return Response({'type': 'error', 'detail': ex})
+
+class practice(APIView):
+
+    def post(self, request):
+        try:
+            result = request.data.get('result')
+            print('RESULT: ', result['question'])
+           
+            try:
+                All_User_Answers.objects.raw(f"DELETE * FROM api_all_user_answers WHERE user = {result['user']} AND course = {result['course']}")
+            except Exception as ex:
+                print('EXEPT', ex)
+
+            data = All_User_Answers(
+                user = result['user'],
+                course = result['course'],
+                exam_name = result['exam_name'],
+                question = result['question'],
+                is_correct = result['is_correct']).save()
+
+            return Response({'type': 'ok', 'detail': {
+                'message': 'las preguntas del usuario fueron guardadas exitosamente',
+                'content': utils.json_serializer(data)
+            }})
+
+        except Exception as ex:
+            return Response({'type': 'error', 'detail': ex})
+
+    def get(self, request):
+        '''
+        target:
+        params: query params:
+        '''
+
+        try:
+            iexact = self.request.query_params.get('iexact')
+            icontains = self.request.query_params.get('icontains')
+            startswith = self.request.query_params.get('startswith')
+            endswith = self.request.query_params.get('endswith')
+            lt = self.request.query_params.get('lt')
+            gt = self.request.query_params.get('gt')
+            gte = self.request.query_params.get('gte')
+            union = self.request.query_params.get('union')
+            join = self.request.query_params.get('join')
+
+            # iexact
+            if iexact is not None:
+                data = Questions.objects.filter(question__iexact = iexact)
+                if data.exists():
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+            
+            # icontains
+            if icontains is not None:
+                data = Questions.objects.filter(question__icontains = icontains)
+                if data.exists():
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+
+            # startswith
+            if startswith is not None:
+                data = Questions.objects.filter(question__startswith = startswith)
+                if data.exists():
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+            # endwith
+            if endswith is not None:
+                data = Questions.objects.filter(question__endswith = endswith)
+                if data.exists():
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+            # union
+            if union is not None:
+                data1 = Questions.objects.all()
+                data2 = Exams.objects.all()
+                data = data2.union(data1)
+                if data.exists():
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+            # join
+            if join is not None:
+                data = Questions.objects.select_related('exam')
+                
+                if data.exists():
+                    print(data.query)
+                    return Response({'detail': utils.json_serializer(data)})
+                else:
+                    return Response({'detail': 'does not exist'})
+            else:
+                data = All_User_Answers.objects.all()
+                return Response({'type': 'ok', 'detail': utils.json_serializer(data[-3:])})
+
+        except Exception as ex:
+            return Response({'type': 'error', 'detail': ex}, status=status.HTTP_400_BAD_REQUEST)

@@ -2,18 +2,25 @@ version: "3.9"
 
 services:
   db:
-    image: mysql:latest
+    image: mysql
     restart: always
     ports:
       - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_ucourses
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_DATABASE: 'db_ucourses'
+      MYSQL_USER: 'root'
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
+    # environment:
+    #   - MYSQL_ROOT_PASSWORD=root
+    #   - MYSQL_PASSWORD=root
+    #   - MYSQL_DATABASE=db_ucourses
+    #   - MYSQL_USER=root
     depends_on:
       - db
 
